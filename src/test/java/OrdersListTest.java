@@ -1,34 +1,27 @@
-import io.restassured.RestAssured;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
+import io.qameta.allure.junit4.DisplayName;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import static io.restassured.RestAssured.given;
 
+import java.util.ArrayList;
 
 public class OrdersListTest {
-
-    private RequestLoggingFilter requestFilter;
-    private ResponseLoggingFilter responseFilter;
+    private Steps client;
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru/";
-        requestFilter  = new RequestLoggingFilter();
-        responseFilter =  new ResponseLoggingFilter();
+        client = new Steps();
     }
 
     @Test
+    @DisplayName("Получение списка заказов")
     public void getOrdersList () {
-       OrdersList ordersList = given()
-                .filters(requestFilter, responseFilter)
-                .when()
-                .get("/api/v1/orders")
+       OrdersList ordersList = client.getOrder()
                 .then()
                 .statusCode(200)
                 .extract().as(OrdersList.class);
         Assert.assertNotNull(ordersList);
-
+        Assert.assertTrue(ordersList.getOrders().getClass() == ArrayList.class);
+        Assert.assertTrue(ordersList.getOrders().size() > 0);
     }
 }
